@@ -1,6 +1,6 @@
 groq
 python-dotenv
 sentence-transformers
-psycopg2-binary
+supabase
 fastapi
 uvicorn
