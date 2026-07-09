@@ -3,3 +3,6 @@ python-dotenv
 sentence-transformers
 chromadb
 supabase
+psycopg2-binary
+fastapi
+uvicorn
