@@ -20,8 +20,26 @@ app.add_middleware(
 	allow_headers=["*"],
 )
 
-moderator = Moderator()
-rag = Rag()
+# Chargement paresseux : on n'instancie PAS les agents (ni le modèle
+# sentence-transformers) à l'import, sinon le démarrage est trop long et Render
+# ne détecte aucun port ouvert ("No open ports detected"). Ils sont créés au
+# premier appel de /ask, une seule fois (mis en cache).
+_moderator = None
+_rag = None
+
+
+def get_moderator():
+	global _moderator
+	if _moderator is None:
+		_moderator = Moderator()
+	return _moderator
+
+
+def get_rag():
+	global _rag
+	if _rag is None:
+		_rag = Rag()
+	return _rag
 
 
 class QuestionRequest(BaseModel):
@@ -40,7 +58,7 @@ class RagResponse(BaseModel):
 @app.post("/ask")
 async def ask(request: QuestionRequest):
 	try:
-		moderation_result = moderator.moderate(request.question)
+		moderation_result = get_moderator().moderate(request.question)
 
 		if not moderation_result.get("safe"):
 			raise HTTPException(status_code=400, detail=f"Question not safe: {moderation_result.get('reason')}")
@@ -48,7 +66,7 @@ async def ask(request: QuestionRequest):
 		if not moderation_result.get("in_scope"):
 			raise HTTPException(status_code=400, detail=f"Question out of scope: {moderation_result.get('reason')}")
 
-		rag_response, documents, metadatas, sub_questions, formatted_question = rag.ask_rag(request.question)
+		rag_response, documents, metadatas, sub_questions, formatted_question = get_rag().ask_rag(request.question)
 
 		return RagResponse(
 			response=rag_response,
