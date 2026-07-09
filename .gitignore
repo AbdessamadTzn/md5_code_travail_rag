@@ -216,3 +216,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- Projet RAG Code du travail ---
+# Gros fichiers data (régénérables / stockés sur Supabase)
+data/raw/
+data/chroma.sqlite3
+data/articles.json
+data/*.json

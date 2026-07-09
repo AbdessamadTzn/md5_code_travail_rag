@@ -1,4 +1,6 @@
 groq
 python-dotenv
 sentence-transformers
-chromadb
+psycopg2-binary
+fastapi
+uvicorn
