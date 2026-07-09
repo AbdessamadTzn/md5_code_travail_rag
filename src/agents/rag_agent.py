@@ -1,11 +1,7 @@
-import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from base_agent import Agent
-from config import LLM_MODEL
-
-from vector_db import VectorDB
+from src.agents.base_agent import Agent
+from src.config import LLM_MODEL, VECTOR_DB_PATH
+from src.vector_db import VectorDB
 
 PROMPT_SYSTEM_PATH = Path(__file__).parent / "rag_prompt_system.txt"
 
@@ -16,8 +12,8 @@ class Rag(Agent):
 
 
 
-	def build_context(self, question):
-		documents, metadatas = self.vector_db_object.retrieve(question)
+	def build_context(self, question, n_chunks=5):
+		documents, metadatas = self.vector_db_object.retrieve(question, n=n_chunks)
 		prompt_system = Rag.read_file(PROMPT_SYSTEM_PATH)
 
 		prompt_system = prompt_system.replace("{{CHUNKS}}", "\n\t".join(documents))
@@ -49,17 +45,19 @@ class Rag(Agent):
 
 
 if __name__ == "__main__":
-	vector_db_path = str(Path(__file__).parent.parent.parent / "data")
-
+	vector_db_path = VECTOR_DB_PATH
 	rag_object = Rag(vector_db_path=vector_db_path)
-
-	rag_response, documents, metadatas = rag_object.ask_rag(question="Quelle est la durée légale du travail ?")
-
-	print(rag_response)
-	print("-"*20)
-	for index_document in range(len(documents)):
-		print(f"Documents {index_document}")
-		print(documents[index_document])
-		for key, value in metadatas[index_document].items():
-			print(f"{key} : {value}")
-		print("---")
+	#question = "Quelle est la durée légale du travail par semaine?"
+	#question = "c'est quoi le smic en france?"
+	#question = "c'est quoi le smic en france? pourquoi il est important?"
+	question = "droit au congé payé en france?"
+	print(f"Question: {question}")
+	rag_response, documents, metadatas = rag_object.ask_rag(question)
+	print("\nChunks utilisés:")
+	for i, meta in enumerate(metadatas, 1):
+		print(f"  {i}. {meta.get('num')} (chunk {meta.get('chunk_index')})")
+	print("\nRéponse:")
+	try:
+		print(rag_response)
+	except UnicodeEncodeError:
+		print(rag_response.encode("cp1252", errors="replace").decode("cp1252"))
