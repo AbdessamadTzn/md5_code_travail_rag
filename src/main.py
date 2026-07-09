@@ -28,6 +28,8 @@ class RagResponse(BaseModel):
 	documents: list
 	metadatas: list
 	moderation: dict
+	sub_questions: list = []
+	formatted_question: str = ""
 
 
 @app.post("/ask")
@@ -41,13 +43,15 @@ async def ask(request: QuestionRequest):
 		if not moderation_result.get("in_scope"):
 			raise HTTPException(status_code=400, detail=f"Question out of scope: {moderation_result.get('reason')}")
 
-		rag_response, documents, metadatas = rag.ask_rag(request.question)
+		rag_response, documents, metadatas, sub_questions, formatted_question = rag.ask_rag(request.question)
 
 		return RagResponse(
 			response=rag_response,
 			documents=documents,
 			metadatas=metadatas,
-			moderation=moderation_result
+			moderation=moderation_result,
+			sub_questions=sub_questions,
+			formatted_question=formatted_question,
 		)
 
 	except HTTPException:
