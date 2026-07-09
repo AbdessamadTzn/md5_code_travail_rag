@@ -1,14 +1,16 @@
 from pathlib import Path
 from src.agents.base_agent import Agent
-from src.config import LLM_MODEL, VECTOR_DB_PATH
-from src.vector_db import VectorDB
+from src.agents.question_formatter_agent import QuestionFormatter
+from src.config import LLM_MODEL
+from src.vector_store import get_vector_db
 
 PROMPT_SYSTEM_PATH = Path(__file__).parent / "rag_prompt_system.txt"
 
 class Rag(Agent):
-	def __init__(self, vector_db_path):
+	def __init__(self):
 		super().__init__()
-		self.vector_db_object = VectorDB(vector_db_path=vector_db_path)
+		self.vector_db_object = get_vector_db()
+		self.question_formatter = QuestionFormatter()
 
 
 
@@ -22,8 +24,8 @@ class Rag(Agent):
 
 
 	def ask_rag(self, question):
-
-		prompt_system, documents, metadatas = self.build_context(question)
+		formatted_question = self.question_formatter.format_question(question)
+		prompt_system, documents, metadatas = self.build_context(formatted_question)
 		
 		chat_completion = self.client.chat.completions.create(
 			messages=[
@@ -33,7 +35,7 @@ class Rag(Agent):
 				},
 				{
 					"role": "user",
-					"content": question,
+					"content": formatted_question,
 				}
 			],
 			temperature=0,
@@ -41,18 +43,18 @@ class Rag(Agent):
 		)
 
 		rag_response = chat_completion.choices[0].message.content
-		return rag_response, documents, metadatas
+		return rag_response, documents, metadatas, formatted_question
 
 
 if __name__ == "__main__":
-	vector_db_path = VECTOR_DB_PATH
-	rag_object = Rag(vector_db_path=vector_db_path)
+	rag_object = Rag()
 	#question = "Quelle est la durée légale du travail par semaine?"
 	#question = "c'est quoi le smic en france?"
 	#question = "c'est quoi le smic en france? pourquoi il est important?"
-	question = "droit au congé payé en france?"
-	print(f"Question: {question}")
-	rag_response, documents, metadatas = rag_object.ask_rag(question)
+	question = "euh du coup c'est quoi le smic en france stp"
+	print(f"Question brute: {question}")
+	rag_response, documents, metadatas, formatted_question = rag_object.ask_rag(question)
+	print(f"Question formatée: {formatted_question}")
 	print("\nChunks utilisés:")
 	for i, meta in enumerate(metadatas, 1):
 		print(f"  {i}. {meta.get('num')} (chunk {meta.get('chunk_index')})")

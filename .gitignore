@@ -216,3 +216,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local vector databases (rebuild with: python -m src.vector_db --rebuild)
+my_vector_db/
+src/my_vector_db/
+**/chroma.sqlite3
+data/*/
+!data/articles.json
+!data/raw/
