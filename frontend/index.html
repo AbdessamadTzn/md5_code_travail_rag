@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RAG - Code du Travail</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div class="min-h-screen p-4 sm:p-8">
+      <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+          <h1 class="text-4xl font-bold text-gray-900 mb-2">
+            Assistant IA - Code du Travail
+          </h1>
+          <p class="text-gray-600">
+            Posez vos questions sur le droit du travail français
+          </p>
+        </div>
+
+        <!-- Search Form -->
+        <form id="questionForm" class="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <div class="flex gap-2">
+            <input
+              type="text"
+              id="questionInput"
+              placeholder="Posez votre question..."
+              class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <button
+              type="submit"
+              id="submitBtn"
+              class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold transition-colors"
+            >
+              Envoyer
+            </button>
+          </div>
+        </form>
+
+        <!-- Error Message -->
+        <div id="errorContainer" class="hidden mb-8">
+          <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p class="text-red-800 font-semibold">Erreur</p>
+            <p id="errorMessage" class="text-red-600"></p>
+          </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingContainer" class="hidden mb-8">
+          <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+            <div class="inline-block">
+              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+            <p class="text-gray-600 mt-4">Recherche en cours...</p>
+          </div>
+        </div>
+
+        <!-- Response Container -->
+        <div id="responseContainer" class="hidden space-y-6">
+          <!-- Main Response -->
+          <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Réponse</h2>
+            <p id="responseText" class="text-gray-700 leading-relaxed whitespace-pre-wrap"></p>
+          </div>
+
+          <!-- Moderation Status -->
+          <div id="moderationContainer" class="rounded-lg p-4">
+            <p id="moderationStatus" class="font-semibold"></p>
+            <p id="moderationReason" class="text-sm mt-1"></p>
+          </div>
+
+          <!-- Source Documents -->
+          <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 id="sourceTitle" class="text-xl font-bold text-gray-900 mb-4">
+              Sources
+            </h3>
+            <div id="documentsContainer" class="space-y-4"></div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="bg-white rounded-lg shadow-lg p-12 text-center">
+          <p class="text-gray-500 text-lg">Posez une question pour commencer...</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center text-gray-600 text-sm">
+          <p>Données alimentées par le Code du travail français via Supabase</p>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

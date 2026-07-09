@@ -224,3 +224,10 @@ src/my_vector_db/
 data/*/
 !data/articles.json
 !data/raw/
+
+# --- Projet RAG Code du travail ---
+# Gros fichiers data (régénérables / stockés sur Supabase)
+data/raw/
+data/chroma.sqlite3
+data/articles.json
+data/*.json

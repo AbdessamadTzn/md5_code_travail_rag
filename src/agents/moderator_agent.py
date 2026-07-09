@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from base_agent import Agent
+from .base_agent import Agent
 from config import MODERATOR_MODEL
 
 PROMPT_SYSTEM_PATH = Path(__file__).parent / "moderator_prompt_system.txt"
