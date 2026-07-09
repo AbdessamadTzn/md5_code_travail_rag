@@ -1,9 +1,14 @@
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from src.agents.moderator_agent import Moderator
 from src.agents.rag_agent_supabase import Rag
 import json
+
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 
 app = FastAPI(title="RAG Code du Travail", version="1.0")
 
@@ -65,6 +70,9 @@ async def ask(request: QuestionRequest):
 @app.get("/health")
 async def health():
 	return {"status": "ok"}
+
+
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
 
 
 if __name__ == "__main__":
