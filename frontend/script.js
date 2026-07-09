@@ -1,7 +1,13 @@
-// Si la page est servie par FastAPI (port 8000), on utilise l'origine courante.
-// Sinon (serveur statique séparé, file://, autre port), on cible le backend FastAPI.
-const DEFAULT_API =
-  window.location.port === "8000" ? "" : "http://localhost:8000";
+// En prod (Render) et en local via uvicorn, le frontend est servi par FastAPI :
+// on appelle donc la MÊME origine (URL relative "").
+// Seul cas particulier : frontend servi séparément en local (file:// ou http.server
+// sur un autre port que 8000) -> on cible explicitement le backend local sur :8000.
+const isLocalStatic =
+  window.location.protocol === "file:" ||
+  ((window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1") &&
+    window.location.port !== "8000");
+const DEFAULT_API = isLocalStatic ? "http://localhost:8000" : "";
 const API_URL = localStorage.getItem("apiUrl") || DEFAULT_API;
 const STORAGE_KEY = "lexsociale_threads";
 

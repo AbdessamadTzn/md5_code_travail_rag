@@ -1,5 +1,7 @@
 # md5_code_travail_rag
 
+Deployed on : https://md5-code-travail-rag.vercel.app/
+
 **RAG (Retrieval-Augmented Generation) sur le Code du travail français.**
 
 Chatbot qui répond à des questions de droit du travail en s'appuyant uniquement
@@ -69,16 +71,16 @@ Script : [`src/data_preparation.py`](src/data_preparation.py)
 
 Chaque document produit dans `data/articles.json` contient :
 
-| Champ          | Rôle             | Description |
-|----------------|------------------|-------------|
+| Champ          | Rôle             | Description                                                                                                                                                      |
+| -------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `id`           | Identifiant      | ID Légifrance de l'article (ex: `LEGIARTI000018764571`), stable dans le temps même si le texte change — sert de clé pour les mises à jour incrémentales (upsert) |
-| `num`          | Métadonnée       | Numéro d'article (ex: `L1111-1`) |
-| `texte`        | Texte à embedder | Contenu nettoyé de l'article |
-| `embed_text`   | Texte à embedder | `texte` précédé du titre de la sous-section immédiate |
-| `section_path` | Métadonnée       | Chemin hiérarchique complet (Partie > Livre > Titre > Chapitre...) |
-| `source`       | Métadonnée       | `"Code du travail"` |
-| `etat`         | Métadonnée       | État juridique (seuls les articles `VIGUEUR` sont conservés) |
-| `hash`         | Contrôle         | SHA256 du `texte`, utilisé pour la mise à jour incrémentale |
+| `num`          | Métadonnée       | Numéro d'article (ex: `L1111-1`)                                                                                                                                 |
+| `texte`        | Texte à embedder | Contenu nettoyé de l'article                                                                                                                                     |
+| `embed_text`   | Texte à embedder | `texte` précédé du titre de la sous-section immédiate                                                                                                            |
+| `section_path` | Métadonnée       | Chemin hiérarchique complet (Partie > Livre > Titre > Chapitre...)                                                                                               |
+| `source`       | Métadonnée       | `"Code du travail"`                                                                                                                                              |
+| `etat`         | Métadonnée       | État juridique (seuls les articles `VIGUEUR` sont conservés)                                                                                                     |
+| `hash`         | Contrôle         | SHA256 du `texte`, utilisé pour la mise à jour incrémentale                                                                                                      |
 
 ### Choix : que mettre dans le texte embeddé ?
 
@@ -138,11 +140,11 @@ avec un fallback recherche par mots-clés.
 Tous les agents héritent de `src/agents/base_agent.py` (client Groq partagé).
 Chaque agent a son prompt système dans un `.txt` dédié.
 
-| Agent | Rôle | Modèle (Groq) |
-|-------|------|---------------|
-| `Moderator` (`moderator_agent.py`) | Filtre les questions non sûres / hors-sujet, renvoie `{safe, in_scope, reason}` | `openai/gpt-oss-safeguard-20b` |
-| Décomposeur / Formatteur (`question_decomposer_agent.py`, `question_formatter_agent.py`) | Reformule et découpe la question en sous-questions de recherche | `openai/gpt-oss-120b` |
-| `Rag` (`rag_agent_supabase.py`) | Récupère les chunks pertinents et génère la réponse ancrée sur les sources | `openai/gpt-oss-120b` |
+| Agent                                                                                    | Rôle                                                                            | Modèle (Groq)                  |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------ |
+| `Moderator` (`moderator_agent.py`)                                                       | Filtre les questions non sûres / hors-sujet, renvoie `{safe, in_scope, reason}` | `openai/gpt-oss-safeguard-20b` |
+| Décomposeur / Formatteur (`question_decomposer_agent.py`, `question_formatter_agent.py`) | Reformule et découpe la question en sous-questions de recherche                 | `openai/gpt-oss-120b`          |
+| `Rag` (`rag_agent_supabase.py`)                                                          | Récupère les chunks pertinents et génère la réponse ancrée sur les sources      | `openai/gpt-oss-120b`          |
 
 L'embedding est local ; **seuls le LLM et le modérateur passent par l'API Groq**
 (d'où une seule clé `GROQ_API_KEY` nécessaire).
@@ -153,11 +155,11 @@ L'embedding est local ; **seuls le LLM et le modérateur passent par l'API Groq*
 
 Fichier : [`src/main.py`](src/main.py)
 
-| Endpoint | Méthode | Description |
-|----------|---------|-------------|
-| `/ask` | POST | Corps `{"question": "..."}`. Modère → (refuse si non sûr/hors-sujet) → décompose → recherche → génère. Renvoie `response`, `documents`, `metadatas`, `moderation`, `sub_questions`, `formatted_question` |
-| `/health` | GET | `{"status": "ok"}` |
-| `/` | GET | Sert le frontend statique (`frontend/`) |
+| Endpoint  | Méthode | Description                                                                                                                                                                                              |
+| --------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/ask`    | POST    | Corps `{"question": "..."}`. Modère → (refuse si non sûr/hors-sujet) → décompose → recherche → génère. Renvoie `response`, `documents`, `metadatas`, `moderation`, `sub_questions`, `formatted_question` |
+| `/health` | GET     | `{"status": "ok"}`                                                                                                                                                                                       |
+| `/`       | GET     | Sert le frontend statique (`frontend/`)                                                                                                                                                                  |
 
 ---
 
@@ -207,23 +209,25 @@ pip install -r requirements.txt
 
 Copier `.env.example` en `.env` et renseigner :
 
-| Variable | Rôle |
-|----------|------|
-| `GROQ_API_KEY` | Clé API Groq (LLM + modérateur) — **requis** |
-| `VECTOR_BACKEND` | `supabase` (prod) ou `chroma` (local) |
-| `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | Accès Supabase (écriture, ex. upload/sync) |
-| `SUPABASE_ANON_KEY` | Accès Supabase en lecture |
-| `DATABASE_URL` | Connexion Postgres directe (alternative à la clé Supabase) |
+| Variable                                     | Rôle                                                       |
+| -------------------------------------------- | ---------------------------------------------------------- |
+| `GROQ_API_KEY`                               | Clé API Groq (LLM + modérateur) — **requis**               |
+| `VECTOR_BACKEND`                             | `supabase` (prod) ou `chroma` (local)                      |
+| `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | Accès Supabase (écriture, ex. upload/sync)                 |
+| `SUPABASE_ANON_KEY`                          | Accès Supabase en lecture                                  |
+| `DATABASE_URL`                               | Connexion Postgres directe (alternative à la clé Supabase) |
 
 ## Lancement en local
 
 **Backend (API + frontend servi sur `/`)** :
+
 ```bash
 uvicorn src.main:app --reload
 # http://localhost:8000
 ```
 
 **Frontend seul (statique)** :
+
 ```bash
 cd frontend && python -m http.server 3000
 ```
