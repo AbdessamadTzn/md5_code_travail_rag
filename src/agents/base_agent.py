@@ -1,4 +1,4 @@
-from config import GROQ_API_KEY
+from src.config import GROQ_API_KEY
 from groq import Groq 
 
 
