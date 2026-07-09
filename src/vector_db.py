@@ -43,12 +43,35 @@ class VectorDB:
 
 		embeddings = self.get_embeddings(chuncks)
 
-		collection.add(
-			ids = list(corpus_df["id"].values),
-			documents=chuncks,
-			embeddings=embeddings,
-			metadatas=[{"source": row["source"], "num": row["num"], "section_path": row["section_path"], "etat": row["etat"]} for _, row in corpus_df.iterrows()]
+		# collection.add(
+		# 	ids = list(corpus_df["id"].values),
+		# 	documents=chuncks,
+		# 	embeddings=embeddings,
+		# 	metadatas=[{"source": row["source"], "num": row["num"], "section_path": row["section_path"], "etat": row["etat"]} for _, row in corpus_df.iterrows()]
+		# 	)
+
+		BATCH_SIZE = 5000
+
+		ids = list(corpus_df["id"].values)
+		metadatas = [
+			{
+				"source": row["source"],
+				"num": row["num"],
+				"section_path": row["section_path"],
+				"etat": row["etat"],
+			}
+			for _, row in corpus_df.iterrows()
+		]
+
+		for i in range(0, len(chuncks), BATCH_SIZE):
+			collection.add(
+				ids=ids[i : i + BATCH_SIZE],
+				documents=chuncks[i : i + BATCH_SIZE],
+				embeddings=embeddings[i : i + BATCH_SIZE],
+				metadatas=metadatas[i : i + BATCH_SIZE],
 			)
+
+
 
 
 
